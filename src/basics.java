@@ -31,6 +31,7 @@ public class basics {
 		//just felt like typing some stuff here and use the git bash to send it to my remote repo
 		//so if u are reading this and laughing already thinking that I'm crazy !!
 		//you bett ure ass I'm crazy allez bonne nuit les amis @ demain :D 
+		//again no progress just something to commit and push :D
 		
 		
 		
