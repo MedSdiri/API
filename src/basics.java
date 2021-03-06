@@ -1,9 +1,10 @@
 
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
-
-import files.payload;
+import org.testng.Assert;
+import files.*;
 
 public class basics {
 
@@ -15,23 +16,72 @@ public class basics {
 		//WHEN- submit the API, HTTP method and resource goes under the WHEN ALWAYS
 		// THEN - Validate the response 
 		
+		// Add - place -> Update Place with new Address 
+				//-> Get place to validate if the new address is present in response
+		
 		RestAssured.baseURI= "https://rahulshettyacademy.com";
 	
-		given().log().all().queryParam("key", "qaclick123").header("Content-Type", "application/json")
+		String response = given().log().all().queryParam("key", "qaclick123").header("Content-Type", "application/json")
 		.body(payload.AddPlace()).when().post("maps/api/place/add/json")
-		.then().log().all().assertThat().statusCode(200).body("scope", equalTo("APP"))
-		.header("Server","Apache/2.4.18 (Ubuntu)" );
+		.then().assertThat().statusCode(200).body("scope", equalTo("APP"))
+		.header("Server","Apache/2.4.18 (Ubuntu)" ).extract().response().asString();
 		
-		// Add - place -> Update Place with new Address 
-		//-> Get place to validate if the new address is present in response
-		// 03/03/2021 2:07 am, we will finish this work tomorrow
-		//calling it for the night ? btw this is tomorrow but we didn't finish this work lol
-		// we focused a bit on databases with the group we will get back here tomorrow yes if we are not in 
-		//yesterday's tomorrow now it will be tomorrow's tomorrow we will finish this stuff up 
-		//just felt like typing some stuff here and use the git bash to send it to my remote repo
-		//so if u are reading this and laughing already thinking that I'm crazy !!
-		//you bett ure ass I'm crazy allez bonne nuit les amis @ demain :D 
-		//again no progress just something to commit and push :D
+
+		//System.out.println(response);
+		
+		JsonPath js = Utilities.rawToJson(response);
+		String placeId = js.getString("place_id"); //for parsing Json 
+		
+	
+		System.out.println(placeId);
+		
+		// Update place
+		
+		String newAddress ="Collins St, Alrington, Tx";
+		
+       given().log().all().queryParam("key", "qaclick123").header("Content-Type", "application/json")
+        .body("{\r\n"
+        		+ "\"place_id\":\""+placeId+"\",\r\n"
+        		+ "\"address\":\""+newAddress+"\",\r\n"
+        		+ "\"key\":\"qaclick123\"\r\n"
+        		+ "}").
+        when().put("maps/api/place/update/json")
+        .then().assertThat().log().all().statusCode(200).body("msg", equalTo("Address successfully updated"));
+       
+        //Get place 
+		System.out.println("++++++++++++++++---+++++++++++++");
+
+		String getPlaceResponse =given().log().all().queryParam("key", "qaclick123")
+		.queryParam("place_id", placeId)
+		.when().get("maps/api/place/get/json")
+		.then().assertThat().log().all().statusCode(200).extract().response().asString();
+		
+		JsonPath js1 = Utilities.rawToJson(getPlaceResponse);
+		String actualAddress = js1.getString("address");
+		
+		System.out.println(actualAddress);
+		
+		Assert.assertEquals(actualAddress, newAddress, "you Failed Call RAMIZ the SM");
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
